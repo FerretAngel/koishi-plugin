@@ -1,0 +1,21 @@
+{
+  "name": "koishi-plugin-group-expression",
+  "description": "用于群聊使用表情包，使用习惯参考Miao-yunzai的表情",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "homepage": "https://github.com/FerretAngel/koishi-plugin/tree/main/external/group-expression",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.18.0"
+  }
+}

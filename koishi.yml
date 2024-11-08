@@ -69,5 +69,4 @@ plugins:
     $if: env.NODE_ENV === 'development'
     hmr:fpzwzb:
       root: .
-  koishi-face:fvbi15: {}
-  ~koishi-face:45mm7k: {}
+  group-expression:smbgu0: {}
