@@ -16,7 +16,7 @@ const getModel = () => {
 
 
 const getContent = () => {
-  const { model, contents, send } = useConfig()
+  const { contents } = useConfig()
   const historyMsg = getHistoryMsg()
   if (!historyMsg) throw new Error('发送失败：没有历史消息')
   const prompt = contents.prompt ?? ''
@@ -64,4 +64,5 @@ export const chat = async (session: Session) => {
       sendMsgQueue()
     }
   }
+  session.send(sendQueue.join('') + text)
 }
