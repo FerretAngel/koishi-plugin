@@ -70,3 +70,9 @@ plugins:
     hmr:fpzwzb:
       root: .
   group-expression:smbgu0: {}
+  pixiv-auth:hjwi29: {}
+  puppeteer:l1pcob:
+    args:
+      - '--user-data-dir=D:\Users\12194\AppData\Local\puppeteer_profiles'
+      - '--proxy-server=127.0.0.1:7890'
+  '@quanhuzeyu/pixiv:910nle': {}

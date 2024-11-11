@@ -1,4 +1,4 @@
-import { Context, h } from 'koishi'
+import { Context, h ,Time} from 'koishi'
 import { initConfig, SchemaConfig } from './config'
 import { addFace, deleteFace, searchFace } from './face'
 import { readImage2base64 } from './file'
@@ -132,9 +132,7 @@ export function apply(ctx: Context, config: GroupExpression.Config) {
     })
   let lastTriggerTime = 0
   ctx.on('message', async (session) => {
-    if (Date.now() - lastTriggerTime < config.debounceTime * 1000) {
-      return
-    }
+    if (Date.now() - lastTriggerTime < config.debounceTime * 1000) return
     const user = session.event.user
     if (user.id === config.selfId) return
     const channel = session.event.channel
@@ -179,6 +177,7 @@ export function apply(ctx: Context, config: GroupExpression.Config) {
           session.send(h('img', { src: `data:image/png;base64,${base64}` }))
           break
       }
+      lastTriggerTime = Date.now()
     }
   })
 }

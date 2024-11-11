@@ -78,7 +78,14 @@ interface DeleteFaceParams {
 export const deleteFace = async ({ group_id, key, index, user }: DeleteFaceParams) => {
   const config = useConfig()
   const groupJson = getGroupJson(group_id)
-  const [item] = groupJson[key][index]
+  const list = groupJson[key]
+  if (!list || index < 0 || index > list.length - 1) {
+    throw new Error('表情不存在')
+  }
+  const [item] = list[index]
+  if (!item) {
+    throw new Error('表情不存在')
+  }
   if (!(!item.from_user.user_id || item.from_user.user_id === Number(user.id) || config.adminList.includes(user.id.toString()))) {
     throw new Error('无权限删除表情')
   }
