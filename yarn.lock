@@ -4607,6 +4607,7 @@ __metadata:
     esbuild: "npm:^0.23.1"
     esbuild-register: "npm:@shigma/esbuild-register@^1.1.1"
     koishi: "npm:^4.18.0"
+    koishi-plugin-adapter-onebot: "npm:^6.7.3"
     koishi-plugin-android: "npm:^0.0.1"
     koishi-plugin-assets-local: "npm:^3.3.2"
     koishi-plugin-dataview: "npm:^2.6.1"
@@ -4624,6 +4625,17 @@ __metadata:
     yml-register: "npm:^1.2.5"
   languageName: unknown
   linkType: soft
+
+"koishi-plugin-adapter-onebot@npm:^6.7.3":
+  version: 6.7.3
+  resolution: "koishi-plugin-adapter-onebot@npm:6.7.3"
+  dependencies:
+    qface: "npm:^1.4.1"
+  peerDependencies:
+    koishi: ^4.18.0
+  checksum: 10c0/9feab70cdd99a433eff22a1493dc717e57b1a2ab69fdc38ff043676902f9b6623d5eec84327c25be87e0758e8d207fb03053c24c69a66378cc8021c0efb2e89d
+  languageName: node
+  linkType: hard
 
 "koishi-plugin-android@npm:^0.0.1":
   version: 0.0.1
@@ -4668,9 +4680,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"koishi-plugin-ferret-genimi@workspace:external/ferret-genimi":
+"koishi-plugin-ferret-gemini@workspace:external/ferret-gemini":
   version: 0.0.0-use.local
-  resolution: "koishi-plugin-ferret-genimi@workspace:external/ferret-genimi"
+  resolution: "koishi-plugin-ferret-gemini@workspace:external/ferret-gemini"
   dependencies:
     "@google/generative-ai": "npm:^0.21.0"
   peerDependencies:
@@ -5544,6 +5556,13 @@ __metadata:
   version: 1.1.1
   resolution: "puppeteer-finder@npm:1.1.1"
   checksum: 10c0/2df149ad2635888a609bd750a8297a49b26965be0e7ad0351a8d18b92b87ac8dfb36cedcb67c06fbf61c06f060f10b6683227ad851bf6a8589ad967801305b35
+  languageName: node
+  linkType: hard
+
+"qface@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "qface@npm:1.4.1"
+  checksum: 10c0/64f84389b120c3a9b3408eacbedf1eac895ab19abdf4341a8610cdc6eff1b1c92024083b342ea091f2fe897544aefb57bd5a509f4483daeee41403065d7a389c
   languageName: node
   linkType: hard
 
