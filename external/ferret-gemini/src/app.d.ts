@@ -29,6 +29,7 @@ declare namespace FerretGenimi {
     send: {
       probability: number
       spliteChar: string
+      napcatHttpUrl: string
     },
     command: {
       addExpression: string

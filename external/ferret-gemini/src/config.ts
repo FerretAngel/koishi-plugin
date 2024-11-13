@@ -21,6 +21,7 @@ export const SchemaConfig: Schema<Omit<FerretGenimi.Config, 'baseDir' | 'ctx'>> 
     send: Schema.object({
       probability: Schema.number().max(1).min(0).default(0.1).description('回复概率'),
       spliteChar: Schema.string().default('。').description('单句分隔符'),
+      napcatHttpUrl: Schema.string().default('http://127.0.0.1:3000').description('napcat http 地址'),
     }).collapse().description('发送设置'),
     command: Schema.object({
       addExpression: Schema.string().default('添加表情').description('添加表情包命令'),

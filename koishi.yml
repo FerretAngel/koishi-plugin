@@ -82,5 +82,9 @@ plugins:
     selfId: koishi
     acceptGroupIds:
       - '#'
+      - '684825890'
     adminIds:
       - Alice
+      - '1219460281'
+  adapter-onebot:5d826m:
+    selfId: '599489626'

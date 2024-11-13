@@ -4,6 +4,7 @@ import { addHistoryMsg } from './history'
 import { chat } from './gemini'
 import { logger } from './log'
 import { addExpression, addExpressionBase64, deleteExpression, getExpressionBase64, getExpressionList, getExpressionListByKey } from './expression'
+import { getActionRes } from './action'
 
 export const name = 'ferret-genimi'
 
@@ -70,6 +71,9 @@ export function apply(ctx: Context, config: FerretGenimi.Config) {
       deleteExpression(key, list[index - 1])
       return `删除表情包成功`
     })
+  ctx.command('戳我').action(async ({ session }) => {
+    getActionRes('touch', session.event.user.id, session)
+  })
   ctx.on('message', async (session) => {
     const user = session.event.user
     const groupId = session.event.channel
@@ -82,6 +86,7 @@ export function apply(ctx: Context, config: FerretGenimi.Config) {
       msg,
       time: Date.now(),
     })
+    console.log(session.content);
     // chat(session)
   })
 }

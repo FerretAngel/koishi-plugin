@@ -3,7 +3,7 @@ import { useConfig } from './config'
 import { h, Session } from 'koishi'
 import { getHistoryMsg } from './history'
 import { logger } from './log'
-import { getCQRes, getPrompt } from './action'
+import { getActionRes, getPrompt } from './action'
 import { type OneBot } from 'koishi-plugin-adapter-onebot'
 
 let client: GoogleGenerativeAI | undefined
@@ -31,7 +31,6 @@ export const chat = async (session: Session) => {
   loading = true
   try {
     const { send: { spliteChar } } = useConfig()
-    const bot = session.onebot
     const model = await getModel()
     const contents = getHistoryMsg()
     const result = await model.generateContentStream(contents)
@@ -46,13 +45,9 @@ export const chat = async (session: Session) => {
         const match = item.match(reg)
         if (match) {
           const [action, value] = match.pop()?.replace('{{', '')?.replace('}}', '')?.split(':') ?? []
-          if (action && value && typeof bot.sendGroupMsg === 'function') {
-            const res = getCQRes(action, value)
-            if (res && action !== 'expression') {
-              return bot.sendGroupMsg(session.event.channel.id, res)
-            } else if (res && action === 'expression') {
-              return session.send(h('img', { src: res }))
-            }
+          if (action && value) {
+            const res = getActionRes(action, value, session)
+            if (res) return
           }
         }
         session.send(item)
