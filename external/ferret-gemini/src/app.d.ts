@@ -1,6 +1,7 @@
 declare namespace FerretGenimi {
 
   interface HistoryMsgItem {
+    groupId: string
     userName: string
     userId: string
     msg: string
@@ -11,6 +12,7 @@ declare namespace FerretGenimi {
     baseDir: string
     ctx: import('@koishijs/core').Context
     selfId: string
+    botNameList: string[]
     adminIds: string[]
     acceptGroupIds: string[]
     model: {

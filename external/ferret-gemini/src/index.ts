@@ -11,7 +11,7 @@ export const name = 'ferret-genimi'
 export const Config = SchemaConfig
 
 export function apply(ctx: Context, config: FerretGenimi.Config) {
-  const { selfId, acceptGroupIds, command, adminIds } = initConfig(ctx, config)
+  const { selfId, acceptGroupIds, command, adminIds, botNameList, send: { probability } } = initConfig(ctx, config)
   const checkPermission = (session: Session) => {
     const userId = session.event.user.id
     if (!acceptGroupIds.includes(session.event.channel.id)) return false
@@ -71,22 +71,51 @@ export function apply(ctx: Context, config: FerretGenimi.Config) {
       deleteExpression(key, list[index - 1])
       return `删除表情包成功`
     })
-  ctx.command('戳我').action(async ({ session }) => {
-    getActionRes('touch', session.event.user.id, session)
+  botNameList.forEach(name => {
+    ctx.command(`${name}<msg:text>`).action(async ({ session }, msg) => {
+      addHistoryMsg({
+        groupId: session.event.channel.id,
+        userName: session.event.user.name,
+        userId: session.event.user.id,
+        msg,
+        time: Date.now(),
+      })
+      chat(session)
+    })
   })
+  const triggerMap = new Map<string, number>()
   ctx.on('message', async (session) => {
     const user = session.event.user
     const groupId = session.event.channel
-    if (!acceptGroupIds.includes(groupId.id) || user.id === selfId) return
-    const msg = session.content
-    if (msg.startsWith(command.addExpression)) return
+    if (!acceptGroupIds.includes(groupId.id)) return
+    const [text] = h.select(session.elements, 'text')
+    const [at] = h.select(session.elements, 'at')
+    const msg = text.attrs.content
+    if (msg.startsWith(command.addExpression) || botNameList.some(name => msg.startsWith(name))) return
     addHistoryMsg({
+      groupId: groupId.id,
       userName: user.name,
       userId: user.id,
       msg,
       time: Date.now(),
     })
-    console.log(session.content);
-    // chat(session)
+    if (user.id === selfId) return
+    // 如果消息是@机器人，则立即响应
+    if (at?.attrs?.id === selfId.toString()) {
+      triggerMap.set(groupId.id, Date.now())
+      chat(session)
+      return
+    }
+    // 如果距离上次响应时间小于30秒，则继续响应
+    const triggerTime = triggerMap.get(groupId.id) || 0
+    if (Date.now() - triggerTime < 30000) {
+      triggerMap.set(groupId.id, Date.now())
+      chat(session)
+      return
+    }
+    // 如果随机概率小于配置的概率，则响应
+    if (Math.random() < probability) {
+      chat(session)
+    }
   })
 }

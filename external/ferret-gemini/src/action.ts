@@ -4,7 +4,7 @@ import { getExpressionBase64, getExpressionList, getExpressionListByKey } from "
 
 
 const actionMap: Record<string, (value: string, session: Session) => boolean> = {
-  touch: (value: string, session: Session) => {
+  poke: (value: string, session: Session) => {
     const groupId = session.event.channel.id
     const { send: { napcatHttpUrl } } = useConfig()
     fetch(`${napcatHttpUrl}/group_poke`, {
@@ -14,6 +14,10 @@ const actionMap: Record<string, (value: string, session: Session) => boolean> = 
         user_id: value
       })
     })
+    return true
+  },
+  at: (value: string, session: Session) => {
+    session.send(`<at id="${value}"/>`)
     return true
   },
   expression: (value: string, session: Session) => {
@@ -34,7 +38,7 @@ export const getActionList = () => {
 
 export const getPrompt = () => {
   const { contents, send } = useConfig()
-  return `${contents.prompt},每句话之间用${send.spliteChar}分割。你可以添加动作[expression,${getActionList().join(',')}]。添加格式为{{动作:值}},将动作视为一句话。expression可选值:${getExpressionList().join(',')}。其他动作的值为用户的ID`
+  return `${contents.prompt}。每句话之间用${send.spliteChar}分割。你可以添加动作[${getActionList().join(',')}]。添加格式为{{动作:值}},将动作视为一句话。expression可选值:${getExpressionList().join(',')}。其他动作的值为用户的ID`
 }
 
 export const getActionRes = (key: string, value: string, session: Session) => {

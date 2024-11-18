@@ -1,16 +1,17 @@
 import { useConfig } from './config'
-const historyList: FerretGenimi.HistoryMsgItem[] = []
-
+const historyMap = new Map<string, FerretGenimi.HistoryMsgItem[]>()
 export const addHistoryMsg = (item: FerretGenimi.HistoryMsgItem) => {
   const { contents } = useConfig()
-  if (historyList.length >= contents.maxLength) {
-    historyList.shift()
+  const groupList = historyMap.get(item.groupId) || []
+  if (groupList.length >= contents.maxLength) {
+    groupList.shift()
   }
-  return historyList.push(item)
+  if (!item.msg.trim()) return
+  return historyMap.set(item.groupId, [...groupList, item])
 }
 
-export const getHistoryMsg = () => {
-  return historyList.map(item => {
+export const getHistoryMsg = (groupId: string) => {
+  return historyMap.get(groupId)?.map(item => {
     return `${item.userName}(${item.userId}):${item.msg}`
   }).join('\n')
 }

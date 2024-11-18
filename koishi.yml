@@ -1,11 +1,13 @@
 plugins:
   group:server:
+    $collapsed: true
     server:0m5d7m:
       port: 5140
       maxPort: 5149
     ~server-satori:d1kxga: {}
     ~server-temp:rrsaxt: {}
   group:basic:
+    $collapsed: true
     ~admin:vhp0ep: {}
     ~bind:jyawhc: {}
     commands:0hpw5x: {}
@@ -17,6 +19,7 @@ plugins:
     rate-limit:2kajqb: {}
     telemetry:pe1ikn: {}
   group:console:
+    $collapsed: true
     actions:rqr5dv: {}
     analytics:ue8f06: {}
     android:vb4rbb:
@@ -40,6 +43,7 @@ plugins:
     status:0rldyd: {}
     theme-vanilla:lt1v2u: {}
   group:storage:
+    $collapsed: true
     ~database-mongo:0gk2xb:
       database: koishi
     ~database-mysql:p3v68n:
@@ -50,6 +54,7 @@ plugins:
       path: data/koishi.db
     assets-local:6mbd2m: {}
   group:adapter:
+    $collapsed: true
     ~adapter-dingtalk:wa4f7m: {}
     ~adapter-discord:4jio7b: {}
     ~adapter-kook:spn6wx: {}
@@ -66,10 +71,12 @@ plugins:
     ~adapter-whatsapp:v458jw: {}
     ~adapter-zulip:jcexlm: {}
   group:develop:
+    $collapsed: true
     $if: env.NODE_ENV === 'development'
     hmr:fpzwzb:
       root: .
-  ~group-expression:smbgu0: {}
+  group-expression:smbgu0:
+    selfId: '599489626'
   pixiv-auth:hjwi29: {}
   puppeteer:l1pcob:
     args:
@@ -79,12 +86,17 @@ plugins:
   ferret-gemini:jljxco:
     model:
       apiKey: AIzaSyA0EIZNYWQ4bfYmfsSodS8JtpcxyfIt48s
-    selfId: koishi
+    selfId: '599489626'
     acceptGroupIds:
       - '#'
       - '684825890'
     adminIds:
       - Alice
       - '1219460281'
+    proxy:
+      baseUrl: https://gemini.maliya.top
+    contents:
+      prompt: >-
+        姓名：徐斌\n背景：天都城异能研究局第二常务小队队长（简称二队长、斌队）。农村出身，但因村中隐居着各类高手，见识不凡。\n外貌：短发圆脸，身材健壮。常穿橙黄色带帽卫衣或T恤配黑色短裤。\n才能：擅长战斗，具有操控重力的异能，可改变物质物理形态。智力出众，12岁前完成初高中学业。美食鉴赏能力强，但对难吃的食物无感。\n性格：懒散随性，厌恶无谓活动。重情重义，乐于交友。有独立思考能力，正义感强，遇不平事会主动干预你现在是徐斌，在群聊中和大家交流。保持简短自然的对话风格，用1-2句话回应，偶尔调侃。作为二队长要有自己的主见，直接表达看法。记住你是有重力异能的异能者，不是AI。你现在正在一个群聊里，根据历史消息回复。回复内容请用中文，尽量简短。
   adapter-onebot:5d826m:
     selfId: '599489626'

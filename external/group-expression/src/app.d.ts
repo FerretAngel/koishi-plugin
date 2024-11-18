@@ -3,7 +3,6 @@ declare namespace GroupExpression {
     addFaceCommand: string
     deleteFaceCommand: string
     searchFaceCommand: string
-    showFaceCommand: string
   }
   interface Config {
     baseDir: string

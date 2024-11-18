@@ -4,17 +4,16 @@ import { initJson, saveJson } from "./file"
 export const SchemaConfig: Schema<Omit<GroupExpression.Config, 'baseDir' | 'ctx'>> = Schema.intersect([
   Schema.object({
     command: Schema.object({
-      addFaceCommand: Schema.string().default('添加表情').description('添加表情命令'),
-      deleteFaceCommand: Schema.string().default('删除表情').description('删除表情命令'),
-      searchFaceCommand: Schema.string().default('搜索表情').description('搜索表情命令'),
-      showFaceCommand: Schema.string().default('查看表情').description('查看表情命令'),
+      addFaceCommand: Schema.string().default('#添加表情').description('添加表情命令'),
+      deleteFaceCommand: Schema.string().default('#删除表情').description('删除表情命令'),
+      searchFaceCommand: Schema.string().default('#搜索表情').description('搜索表情命令'),
     }).collapse().description('指令注册设置'),
     keyLimitLength: Schema.number().default(256).description('关键字长度限制'),
     debounceTime: Schema.number().default(2).description('两次触发间隔时间(秒)'),
     addFaceTimeout: Schema.number().default(60).description('添加表情超时时间(秒)'),
     selfId: Schema.string().description('当前登录的QQ号'),
     adminList: Schema.array(Schema.string()).description('管理员列表'),
-    pageSize: Schema.number().default(10).description('每页显示表情数量'),
+    pageSize: Schema.number().default(2).description('每页显示表情数量'),
   })
 ])
 

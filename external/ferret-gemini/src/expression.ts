@@ -61,6 +61,7 @@ export const deleteExpression = (key: string, fileName: string) => {
 }
 
 export const getExpressionBase64 = (key: string, fileName: string) => {
+  console.log(key, fileName)
   const filePath = getFilePath(key, fileName)
   const fileType = fileName.split('.').pop() ?? 'png'
   return `data:image/${fileType};base64,${fs.readFileSync(filePath).toString('base64')}`

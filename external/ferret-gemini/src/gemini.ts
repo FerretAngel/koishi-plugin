@@ -17,6 +17,7 @@ const getModel = async () => {
   const { model, proxy } = useConfig()
   if (!model.apiKey) throw new Error('发送失败：没有apiKey')
   const client = getClient()
+  console.log(getPrompt());
   return client.getGenerativeModel({
     model: model.model,
     systemInstruction: getPrompt(),
@@ -27,12 +28,13 @@ const getModel = async () => {
 }
 let loading = false
 export const chat = async (session: Session) => {
-  if (loading) return
+  if (loading || !session.event.channel?.id) return
   loading = true
   try {
     const { send: { spliteChar } } = useConfig()
     const model = await getModel()
-    const contents = getHistoryMsg()
+    const contents = getHistoryMsg(session.event.channel.id)
+    console.log(contents)
     const result = await model.generateContentStream(contents)
     let chunkText = ''
 
