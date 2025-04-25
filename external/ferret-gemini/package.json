@@ -1,0 +1,23 @@
+{
+  "name": "koishi-plugin-ferret-gemini",
+  "description": "一个基于Gemini的ai聊天项目，主打一个高智能、高互动性的角色扮演。用最少的token（主要是比较穷）让它融入群聊、成为群友的一员！",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.18.0"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  }
+}

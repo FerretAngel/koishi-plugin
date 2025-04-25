@@ -1,0 +1,26 @@
+{
+  "name": "koishi-plugin-group-expression",
+  "description": "用于群聊使用表情包，使用习惯参考Miao-yunzai的表情。本插件是完美兼容云崽的喵喵插件的表情管理。可以直接把原来的数据迁移过来即可使用。",
+  "version": "0.0.3",
+  "main": "lib/index.js",
+  "homepage": "https://github.com/FerretAngel/koishi-plugin/tree/main/external/group-expression",
+  "typings": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FerretAngel/koishi-plugin.git"
+  },
+  "author": "雪貂 <ferret.icu@qq.com>",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.18.0"
+  }
+}

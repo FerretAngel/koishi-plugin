@@ -1,0 +1,22 @@
+{
+  "name": "koishi-plugin-group-face",
+  "description": "参考Miao-yunzai的表情插件制作的群聊表情插件，指令：\n#添加表情 <message:text>\n#删除表情 <id:number>\n#搜索表情 <key:text>\n#表情列表",
+  "version": "0.0.7",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin",
+    "face",
+    "表情"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.18.0"
+  }
+}

@@ -1,0 +1,94 @@
+plugins:
+  group:server:
+    $collapsed: true
+    server:0m5d7m:
+      port: 5140
+      maxPort: 5149
+    ~server-satori:d1kxga: {}
+    ~server-temp:rrsaxt: {}
+  group:basic:
+    $collapsed: true
+    ~admin:vhp0ep: {}
+    ~bind:jyawhc: {}
+    commands:0hpw5x: {}
+    help:sxtz4n: {}
+    http:n9as6r: {}
+    ~inspect:rzjp3i: {}
+    locales:v2lt8v: {}
+    proxy-agent:tdhsj0: {}
+    rate-limit:2kajqb: {}
+    telemetry:pe1ikn: {}
+  group:console:
+    $collapsed: true
+    actions:rqr5dv: {}
+    analytics:ue8f06: {}
+    android:vb4rbb:
+      $if: env.KOISHI_AGENT?.includes('Android')
+    ~auth:gpe3yj: {}
+    config:9a57et: {}
+    console:i5h6jq:
+      open: true
+    dataview:54379o: {}
+    desktop:10zel3:
+      $if: env.KOISHI_AGENT?.includes('Desktop')
+    explorer:yx38p1: {}
+    logger:nrvfir: {}
+    insight:lqp8nl: {}
+    market:kfqgkl:
+      search:
+        endpoint: https://registry.koishi.chat/index.json
+    notifier:91u8cj: {}
+    oobe:7w3zoa: {}
+    sandbox:5adnct: {}
+    status:0rldyd: {}
+    theme-vanilla:lt1v2u: {}
+  group:storage:
+    $collapsed: true
+    ~database-mongo:0gk2xb:
+      database: koishi
+    ~database-mysql:p3v68n:
+      database: koishi
+    ~database-postgres:yzemrm:
+      database: koishi
+    database-sqlite:az6wnz:
+      path: data/koishi.db
+    assets-local:6mbd2m: {}
+  group:adapter:
+    $collapsed: true
+    ~adapter-dingtalk:wa4f7m: {}
+    ~adapter-discord:4jio7b: {}
+    ~adapter-kook:spn6wx: {}
+    ~adapter-lark:ee93ga: {}
+    ~adapter-line:1p3ln3: {}
+    ~adapter-mail:qn5msl: {}
+    ~adapter-matrix:w00q06: {}
+    ~adapter-qq:9yd4um: {}
+    ~adapter-satori:6dh4jc: {}
+    ~adapter-slack:ovwcqc: {}
+    ~adapter-telegram:mc1hhq: {}
+    ~adapter-wechat-official:o1ue4s: {}
+    ~adapter-wecom:g6ksfb: {}
+    ~adapter-whatsapp:v458jw: {}
+    ~adapter-zulip:jcexlm: {}
+  group:develop:
+    $collapsed: true
+    $if: env.NODE_ENV === 'development'
+    hmr:fpzwzb:
+      root: .
+  group-expression:smbgu0:
+    selfId: '599489626'
+  pixiv-auth:hjwi29: {}
+  puppeteer:l1pcob:
+    args:
+      - '--user-data-dir=D:\Users\12194\AppData\Local\puppeteer_profiles'
+      - '--proxy-server=127.0.0.1:7890'
+  adapter-onebot:5d826m:
+    selfId: '599489626'
+  xubin-store:ogtrwi:
+    api:
+      url: https://xubin.ferret.icu/api/gemini/chat
+      token: 61b94564-5f3b-4fb8-85f3-8e193c9259d1
+    trigger:
+      selfId: '483016833'
+    groupList:
+      isWhite: false
