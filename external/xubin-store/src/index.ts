@@ -3,7 +3,24 @@ import { Context, h, Schema, Session, Logger } from 'koishi'
 export const name = 'xubin-store'
 
 export interface Config { }
-
+const defaultConfig = {
+  trigger: {
+    keyword: '徐斌',
+    interval: 60,
+  },
+  reply: {
+    busy: '忙着呢',
+    error: '心情不好打烊了，明天再来吧',
+    empty: '叽里咕噜说什么呢',
+  },
+  groupList: {
+    isWhite: true,
+    groupList: [] as string[],
+  },
+  model: {
+    maxTokens: 1024,
+  },
+} as const
 
 
 export const Config: Schema<Config> = Schema.object({
@@ -12,22 +29,21 @@ export const Config: Schema<Config> = Schema.object({
     token: Schema.string().required().description('后端服务API Token'),
   }),
   trigger: Schema.object({
-    keyword: Schema.string().default('徐斌').max(10).description('触发关键词，当收到的消息包含此关键词时触发'),
-    interval: Schema.number().default(60).description('间隔时间内无需at回复，单位：秒'),
+    keyword: Schema.string().default(defaultConfig.trigger.keyword).max(10).description('触发关键词，当收到的消息包含此关键词时触发'),
+    interval: Schema.number().default(defaultConfig.trigger.interval).description('间隔时间内无需at回复，单位：秒'),
   }),
   reply: Schema.object({
-    busy: Schema.string().default('忙着呢').description('忙碌状态的回复内容'),
-    error: Schema.string().default('心情不好打烊了，明天再来吧').description('错误状态的回复内容'),
-    empty: Schema.string().default('叽里咕噜说什么呢').description('空状态的回复内容'),
+    busy: Schema.string().default(defaultConfig.reply.busy).description('忙碌状态的回复内容'),
+    error: Schema.string().default(defaultConfig.reply.error).description('错误状态的回复内容'),
+    empty: Schema.string().default(defaultConfig.reply.empty).description('空状态的回复内容'),
   }),
   groupList: Schema.object({
-    isWhite: Schema.boolean().default(true).description('是否为白名单制'),
-    groupList: Schema.array(Schema.string()).default([]).description('群组列表'),
+    isWhite: Schema.boolean().default(defaultConfig.groupList.isWhite).description('是否为白名单制'),
+    groupList: Schema.array(Schema.string()).default(defaultConfig.groupList.groupList).description('群组列表'),
   }),
   model: Schema.object({
-    maxTokens: Schema.number().default(1024).description('模型最大输出TOKEN数'),
+    maxTokens: Schema.number().default(defaultConfig.model.maxTokens).description('模型最大输出TOKEN数'),
   }),
-  // adminList: Schema.array(Schema.string()).default([]).description('管理员列表,出错了会将错误信息私发给管理员'),
 })
 
 export function apply(ctx: Context) {
@@ -41,18 +57,28 @@ export function apply(ctx: Context) {
    * @param session 
    */
   const sendBusy = (session: Session<never, never, Context>) => {
-    session.send(ctx.config?.trigger?.busy ?? '忙着呢')
+    const msg = ctx.config?.trigger?.busy ?? defaultConfig.reply.busy
+    session.send(msg)
+  }
+  /**
+   * 配置错误
+   */
+  const sendConfigError = (session: Session<never, never, Context>) => {
+    const msg = ctx.config?.trigger?.error ?? defaultConfig.reply.error
+    session.send(msg)
   }
   /**
    * 发送错误状态
    * @param session 
    */
   const sendError = (session: Session<never, never, Context>, error: string) => {
-    session.send(ctx.config?.trigger?.error ?? '心情不好打烊了，明天再来吧')
+    const msg = ctx.config?.trigger?.error ?? defaultConfig.reply.error
+    session.send(msg)
   }
 
   const sendEmpty = (session: Session<never, never, Context>) => {
-    session.send(ctx.config?.trigger?.empty ?? '叽里咕噜说什么呢')
+    const msg = ctx.config?.trigger?.empty ?? defaultConfig.reply.empty
+    session.send(msg)
   }
 
   /**
@@ -128,7 +154,7 @@ export function apply(ctx: Context) {
     const maxTokens = ctx.config?.model?.maxTokens
     if (!url) {
       clearBusy()
-      return session.send('配置错误，请检查配置后重试')
+      return sendConfigError(session)
     }
     try {
       const res = await fetch(url, {
@@ -152,7 +178,7 @@ export function apply(ctx: Context) {
       }
       const data = await res.text()
       if (!data?.trim()) return
-      await session.send(h.quote(data))
+      await session.send(data)
     } catch (error) {
       logger.error(error)
       sendError(session, `请求失败，错误信息：${error?.message}`)
