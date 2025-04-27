@@ -178,7 +178,7 @@ export function apply(ctx: Context) {
       }
       const data = await res.text()
       if (!data?.trim()) return
-      await session.send(data)
+      session.send(data)
     } catch (error) {
       logger.error(error)
       sendError(session, `请求失败，错误信息：${error?.message}`)
