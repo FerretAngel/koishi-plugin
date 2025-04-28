@@ -107,12 +107,15 @@ export function apply(ctx: Context) {
     )
     const isQuote = session.quote?.user?.id === botId
     const includeBotName = content.includes(ctx.config?.trigger?.keyword)
+
     const user = session.event.user
     const channel = session.event.channel
+    const isPrivate = channel.type === 1
     return {
       content,
       isAt,
       isQuote,
+      isPrivate,
       includeBotName,
       user,
       channel,
@@ -123,14 +126,29 @@ export function apply(ctx: Context) {
    * 关键词，at，回复，用户上一次回复时间间隔
    */
   const triggerReply = (session: Session<never, never, Context>) => {
+    // 如果是自身消息
+    if (session.selfId === session.event.user.id) return null
     const res = getMessageContent(session)
-    const { isAt, isQuote, includeBotName, user, channel } = res
+    const { isAt, isQuote, isPrivate, includeBotName, user, channel, content } = res
+    if (channel.type === 0 && !isAllowGroup(channel?.id)) return null
     const triggerId = `${user.id}-${channel?.id}`
     const triggerTime = lastReplyMap.get(triggerId)
     // 间隔时间内无需at回复
     if (triggerTime && Date.now() - triggerTime < ctx.config?.trigger?.interval * 1000) return res
     // 消息内容不包含关键词，不回复
-    if (!isAt && !isQuote && !includeBotName) return null
+    if (!isAt && !isQuote && !includeBotName && !isPrivate) return null
+    // 空消息不回复
+    if (!content) {
+      sendEmpty(session)
+      return null
+    }
+    // 繁忙状态不回复
+    if (busyMap.has(user.id) || busyMap.has(channel?.id)) {
+      sendBusy(session)
+      return null
+    }
+    // 设置触发时间
+    lastReplyMap.set(triggerId, Date.now())
     // 消息内容包含关键词，回复
     return res
   }
@@ -140,12 +158,6 @@ export function apply(ctx: Context) {
     const res = triggerReply(session)
     if (!res) return
     const { user, channel, content } = res
-    if (!content) return sendEmpty(session)
-    if (busyMap.has(user.id)) return sendBusy(session)
-    if (channel?.id && busyMap.has(channel.id)) {
-      return sendBusy(session)
-    }
-    if (!isAllowGroup(channel?.id)) return
     const clearBusy = () => {
       busyMap.delete(user.id)
       busyMap.delete(channel?.id)
@@ -181,6 +193,13 @@ export function apply(ctx: Context) {
       session.send(data)
     } catch (error) {
       logger.error(error)
+      logger.info(JSON.stringify({
+        messages: content,
+        groupId: channel?.id,
+        userId: user.id,
+        name: user.name,
+        maxTokens,
+      }))
       sendError(session, `请求失败，错误信息：${error?.message}`)
     } finally {
       clearBusy()
