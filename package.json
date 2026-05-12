@@ -27,6 +27,8 @@
     "new": "koishi-scripts new",
     "setup": "koishi-scripts setup",
     "clone": "koishi-scripts clone",
+    "postinstall": "node scripts/patch-puppeteer-yargs.cjs",
+    "patch:puppeteer-yargs": "node scripts/patch-puppeteer-yargs.cjs",
     "build": "yakumo build",
     "clean": "yakumo clean",
     "bump": "yakumo version",

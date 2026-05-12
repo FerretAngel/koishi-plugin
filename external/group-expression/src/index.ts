@@ -1,4 +1,4 @@
-import { Context, h, Time } from 'koishi'
+import { Context, h } from 'koishi'
 import { initConfig, SchemaConfig } from './config'
 import { addFace, deleteFace, searchFace } from './face'
 import { readImage2base64 } from './file'
@@ -43,11 +43,41 @@ export interface AddFaceMessage {
   message: string
 }
 
+const getPromptTimeoutMs = (seconds: number, fallbackSeconds = 60) => {
+  if (!Number.isFinite(seconds) || seconds <= 0) return fallbackSeconds * 1000
+  return Math.floor(seconds * 1000)
+}
+
+const parseJumpPage = (input: string) => {
+  const match = input.match(/^跳转\s+(\d+)$/)
+  if (!match) return null
+  return Number.parseInt(match[1], 10)
+}
+
+const isExitInput = (input: string) => {
+  const normalized = input.trim().toLowerCase()
+  return ['退出', '结束', '取消', 'q', 'quit', 'exit'].includes(normalized)
+}
+
 export function apply(ctx: Context, config: GroupExpression.Config) {
-  const { command, keyLimitLength, pageSize } = initConfig(ctx, config)
+  const {
+    command,
+    keyLimitLength,
+    pageSize,
+    addFaceTimeout,
+    searchFaceTimeout,
+    deleteFaceTimeout
+  } = initConfig(ctx, config)
+  const commandPrefixes = [
+    command.addFaceCommand,
+    command.deleteFaceCommand,
+    command.searchFaceCommand,
+  ]
+  const safePageSize = Math.max(1, Math.floor(pageSize) || 1)
+
   ctx.command(`${command.addFaceCommand} <message>`)
     .action(async ({ session }, message) => {
-      if (!message.trim()) return `请输入要添加的关键字`
+      if (!message?.trim()) return `请输入要添加的关键字`
       if (message.length > keyLimitLength) {
         return `关键字长度不能超过${keyLimitLength}个字符`
       }
@@ -56,9 +86,12 @@ export function apply(ctx: Context, config: GroupExpression.Config) {
       if (!channel.id || !user.id) {
         return `添加失败，请在群聊中使用`
       }
-      session.send('请发送要添加的表情')
+      await session.send('请发送要添加的表情')
       try {
-        const res = await session.prompt(5000)
+        const res = await session.prompt(getPromptTimeoutMs(addFaceTimeout))
+        if (!res?.trim()) {
+          return `添加表情超时，请在${addFaceTimeout}秒内发送内容后重试。`
+        }
         const elements = h.parse(res)
         await addFace({
           elements: elements,
@@ -75,7 +108,7 @@ export function apply(ctx: Context, config: GroupExpression.Config) {
     .action(async ({ session }, key) => {
       const user = session.event.user
       const channel = session.event.channel
-      if (!key.trim()) return `请输入要删除的关键词：${command.deleteFaceCommand} 关键词`
+      if (!key?.trim()) return `请输入要删除的关键词：${command.deleteFaceCommand} 关键词`
       let page = 0
       const list = await searchFace({ group_id: channel.id, key })
       if (list.length === 0) return `没有找到表情`
@@ -88,7 +121,7 @@ export function apply(ctx: Context, config: GroupExpression.Config) {
         }
       }
       while (true) {
-        const pageList = list.slice(page * pageSize, (page + 1) * pageSize)
+        const pageList = list.slice(page * safePageSize, (page + 1) * safePageSize)
         const resList: (h | string)[] = [`${key}的搜索结果（共计${list.length}条）：\n`]
         pageList.map(([item], index) => {
           resList.push(`${index + 1}:\n`)
@@ -102,50 +135,53 @@ export function apply(ctx: Context, config: GroupExpression.Config) {
               break
           }
         })
-        resList.push(`\n页码：${page + 1}/${Math.ceil(list.length / pageSize)}\n跳转页码指令示例：跳转 1\n请输入要删除的序号：`)
-        session.send(resList)
-        const res = await session.prompt(10000)
+        resList.push(`\n页码：${page + 1}/${Math.ceil(list.length / safePageSize)}\n跳转页码指令示例：跳转 1\n请输入要删除的序号（输入“退出”结束）：`)
+        await session.send(resList)
+        const res = await session.prompt(getPromptTimeoutMs(deleteFaceTimeout))
         if (!res || !res?.trim()) {
-          session.send('本次操作已结束。')
+          await session.send('本次操作已结束。')
           break;
         }
-        if (res.trim().startsWith('跳转')) {
-          const pageNum = parseInt(res?.trim()?.split(' ')?.pop())
-          if (isNaN(pageNum)) {
-            session.send(`请输入正确的页码`)
-            continue
-          }
-          if (pageNum > 0 && pageNum <= Math.ceil(list.length / pageSize)) {
+        const inputText = res.trim()
+        if (isExitInput(inputText)) {
+          await session.send('本次操作已结束。')
+          break
+        }
+        const pageNum = parseJumpPage(inputText)
+        if (pageNum !== null) {
+          if (pageNum > 0 && pageNum <= Math.ceil(list.length / safePageSize)) {
             page = pageNum - 1
             continue
           }
-          session.send(`没有这个页码`)
+          await session.send(`没有这个页码`)
+          continue
         }
-        const input = parseInt(res?.trim())
+        const input = parseInt(inputText)
         if (isNaN(input)) {
-          session.send(`请输入正确的序号`)
+          await session.send(`请输入正确的序号，或输入“跳转 页码”/“退出”。`)
           continue
         }
         if (input > 0 && input <= pageList.length) {
           try {
-            await deleteFace({ group_id: channel.id, key, index: input - 1, user })
+            const index = page * safePageSize + input - 1
+            await deleteFace({ group_id: channel.id, key, index, user })
             return `删除表情成功！`
           } catch (error) {
             return `${error?.message || '删除表情失败,请重试'}`
           }
         }
-        session.send(`没有这个序号`)
+        await session.send(`没有这个序号`)
       }
     })
   ctx.command(`${command.searchFaceCommand} <key>`)
     .action(async ({ session }, key) => {
       const channel = session.event.channel
-      if (!key.trim()) return `请输入要搜索的关键词：${command.searchFaceCommand} 关键词`
+      if (!key?.trim()) return `请输入要搜索的关键词：${command.searchFaceCommand} 关键词`
       let page = 0
       const list = await searchFace({ group_id: channel.id, key })
       if (list.length === 0) return `没有找到表情`
       while (true) {
-        const pageList = list.slice(page * pageSize, (page + 1) * pageSize)
+        const pageList = list.slice(page * safePageSize, (page + 1) * safePageSize)
         const resList: (h | string)[] = [`${key}的搜索结果（共计${list.length}条）：\n`]
         pageList.map(([item], index) => {
           resList.push(`${index + 1}:\n`)
@@ -159,52 +195,61 @@ export function apply(ctx: Context, config: GroupExpression.Config) {
               break
           }
         })
-        resList.push(`\n页码：${page + 1}/${Math.ceil(list.length / pageSize)}\n跳转页码指令示例：跳转 1`)
-        session.send(resList)
-        const res = await session.prompt(10000)
+        resList.push(`\n页码：${page + 1}/${Math.ceil(list.length / safePageSize)}\n跳转页码指令示例：跳转 1\n输入“退出”结束搜索。`)
+        await session.send(resList)
+        const res = await session.prompt(getPromptTimeoutMs(searchFaceTimeout))
         if (!res || !res?.trim()) {
-          session.send('本次搜索已结束。')
+          await session.send('本次搜索已结束。')
           break;
         }
-        if (res.trim().startsWith('跳转')) {
-          const pageNum = parseInt(res?.trim()?.split(' ')?.pop())
-          if (isNaN(pageNum)) {
-            session.send(`请输入正确的页码`)
-            continue
-          }
-          if (pageNum > 0 && pageNum <= Math.ceil(list.length / pageSize)) {
-            page = pageNum - 1
-            continue
-          }
-          session.send(`没有这个页码`)
+        const inputText = res.trim()
+        if (isExitInput(inputText)) {
+          await session.send('本次搜索已结束。')
+          break
         }
+        const pageNum = parseJumpPage(inputText)
+        if (pageNum === null) {
+          await session.send('请输入“跳转 页码”继续翻页，或输入“退出”结束。')
+          continue
+        }
+        if (pageNum > 0 && pageNum <= Math.ceil(list.length / safePageSize)) {
+          page = pageNum - 1
+          continue
+        }
+        await session.send(`没有这个页码`)
       }
     })
 
-  let lastTriggerTime = 0
+  const lastTriggerTimeMap = new Map<string, number>()
   ctx.on('message', async (session) => {
-    if (Date.now() - lastTriggerTime < config.debounceTime * 1000) return
     const user = session.event.user
-    if (user.id === config.selfId) return
     const channel = session.event.channel
+    if (!channel.id) return
+    const userId = session.userId || user?.id?.toString()
+    if (!userId) return
+    if (session.selfId && userId === session.selfId.toString()) return
+    if (config.selfId && userId === config.selfId.toString()) return
     // 搜索表情
     const [searchKey] = h.select(session.elements, 'text')
-    if (searchKey?.attrs?.content?.trim()) {
-      const list = await searchFace({ group_id: channel.id, key: searchKey.attrs.content })
-      if (list.length === 0) return
-      const radomIndex = Math.floor(Math.random() * list.length)
-      const [item] = list[radomIndex]
-      if (!item) return
-      switch (item.type) {
-        case 'text':
-          session.send(item.text)
-          break
-        case 'image':
-          const base64 = readImage2base64(item.local)
-          session.send(h('img', { src: `data:image/png;base64,${base64}` }))
-          break
-      }
-      lastTriggerTime = Date.now()
+    const content = searchKey?.attrs?.content?.trim()
+    if (!content) return
+    if (commandPrefixes.some(prefix => content.startsWith(prefix))) return
+    const lastTriggerTime = lastTriggerTimeMap.get(channel.id) ?? 0
+    if (Date.now() - lastTriggerTime < config.debounceTime * 1000) return
+    const list = await searchFace({ group_id: channel.id, key: content })
+    if (list.length === 0) return
+    const radomIndex = Math.floor(Math.random() * list.length)
+    const [item] = list[radomIndex]
+    if (!item) return
+    lastTriggerTimeMap.set(channel.id, Date.now())
+    switch (item.type) {
+      case 'text':
+        await session.send(item.text)
+        break
+      case 'image':
+        const base64 = readImage2base64(item.local)
+        await session.send(h('img', { src: `data:image/png;base64,${base64}` }))
+        break
     }
   })
 }

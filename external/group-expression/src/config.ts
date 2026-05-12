@@ -10,9 +10,11 @@ export const SchemaConfig: Schema<Omit<GroupExpression.Config, 'baseDir' | 'ctx'
     }).collapse().description('指令注册设置'),
     keyLimitLength: Schema.number().default(256).description('关键字长度限制'),
     debounceTime: Schema.number().default(2).description('两次触发间隔时间(秒)'),
-    addFaceTimeout: Schema.number().default(60).description('添加表情超时时间(秒)'),
-    selfId: Schema.string().description('当前登录的QQ号'),
-    adminList: Schema.array(Schema.string()).description('管理员列表'),
+    addFaceTimeout: Schema.number().default(5).description('添加表情超时时间(秒)'),
+    searchFaceTimeout: Schema.number().default(5).description('搜索翻页等待超时时间(秒)'),
+    deleteFaceTimeout: Schema.number().default(5).description('删除交互等待超时时间(秒)'),
+    selfId: Schema.string().default('').description('当前登录的QQ号（留空时自动使用会话 selfId 过滤自身消息）'),
+    adminList: Schema.array(Schema.string()).default([]).description('管理员列表'),
     pageSize: Schema.number().default(2).description('每页显示表情数量'),
   })
 ])

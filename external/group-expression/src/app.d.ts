@@ -12,6 +12,8 @@ declare namespace GroupExpression {
     keyLimitLength: number
     debounceTime: number
     addFaceTimeout: number
+    searchFaceTimeout: number
+    deleteFaceTimeout: number
     selfId: string
     pageSize: number
   }

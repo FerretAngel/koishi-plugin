@@ -74,8 +74,6 @@ plugins:
     $if: env.NODE_ENV === 'development'
     hmr:fpzwzb:
       root: .
-  group-expression:smbgu0:
-    selfId: '599489626'
   pixiv-auth:hjwi29: {}
   puppeteer:l1pcob:
     args:
@@ -83,14 +81,4 @@ plugins:
       - '--proxy-server=127.0.0.1:7890'
   adapter-onebot:5d826m:
     selfId: '599489626'
-  xubin-store:ogtrwi:
-    api:
-      url: https://xubin.ferret.icu/api/gemini/chat
-      token: 1f24e35f-cf8b-49e3-9b20-5f3717aee843
-    trigger:
-      selfId: '483016833'
-    groupList:
-      groupList:
-        - '705032503'
-    model:
-      maxTokens: 256
+  group-expression:gp6qw9: {}

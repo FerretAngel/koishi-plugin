@@ -1,5 +1,5 @@
 import { h, Session } from 'koishi'
-import { getGroupJson, addGroupJson, updateGroupJson, useConfig } from './config'
+import { getGroupJson, updateGroupJson, useConfig } from './config'
 import { deleteImage, saveBase642Image, saveImage } from './file'
 type User = Session['event']['user']
 interface AddTextFaceParams {
@@ -7,13 +7,23 @@ interface AddTextFaceParams {
   group_id: string
   elements: h[],
 }
+
+const getImageSource = (element: h | undefined) => {
+  return element?.attrs?.src || element?.attrs?.url || element?.attrs?.file
+}
+
 const creatFaceItem = async ({ user, elements, group_id }: AddTextFaceParams): Promise<GroupExpression.MessageContent> => {
   const [img] = h.select(elements, 'img')
   const [image] = h.select(elements, 'image')
   const [text] = h.select(elements, 'text')
   if (img) {
-    const url = img.attrs.src
-    const local = await saveImage(url, group_id)
+    const url = getImageSource(img)
+    if (!url || typeof url !== 'string') {
+      throw new Error('获取表情失败，请发送有效的图片内容！')
+    }
+    const local = url.startsWith('data:image/')
+      ? saveBase642Image(url, group_id)
+      : await saveImage(url, group_id)
     return [{
       type: 'image',
       file: local,
@@ -26,7 +36,13 @@ const creatFaceItem = async ({ user, elements, group_id }: AddTextFaceParams): P
       },
     }]
   } else if (image) {
-    const local = saveBase642Image(image.attrs.src, group_id)
+    const source = getImageSource(image)
+    if (!source || typeof source !== 'string') {
+      throw new Error('获取表情失败，请发送有效的图片内容！')
+    }
+    const local = source.startsWith('data:image/')
+      ? saveBase642Image(source, group_id)
+      : await saveImage(source, group_id)
     return [{
       type: 'image',
       file: local,

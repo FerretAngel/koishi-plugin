@@ -30,6 +30,9 @@ export const deleteImage = (filePath: string) => {
 }
 
 export const saveBase642Image = (base64: string, groupId: string = 'global') => {
+  if (!base64 || typeof base64 !== 'string') {
+    throw new Error('图片数据无效，请重试！')
+  }
   // 移除可能存在的base64头部数据
   const base64Data = base64.replace(/^data:image\/\w+;base64,/, '')
   const buffer = Buffer.from(base64Data, 'base64')
@@ -40,18 +43,22 @@ export const saveBase642Image = (base64: string, groupId: string = 'global') => 
   return miaoBaseUrl + groupId + '/' + fileName
 }
 
-export const saveImage = (url: string, groupId: string = 'global') => {
-  return new Promise<string>(async (resolve, reject) => {
-    const respose = await fetch(url)
-    // 获取响应头的content-type
-    const contentType = respose.headers.get('content-type')
-    const imageType = contentType?.split('/')?.pop() ?? 'png'
-    const buffer = await respose.arrayBuffer()
-    const fileName = `${groupId}_${Date.now()}.${imageType}`
-    const filePath = path.resolve(getFilePath('face', groupId), fileName)
-    fs.writeFileSync(filePath, Buffer.from(buffer))
-    resolve(miaoBaseUrl + groupId + '/' + fileName)
-  })
+export const saveImage = async (url: string, groupId: string = 'global') => {
+  if (!url || typeof url !== 'string') {
+    throw new Error('图片地址无效，请重试！')
+  }
+  const respose = await fetch(url)
+  if (!respose.ok) {
+    throw new Error(`图片下载失败(${respose.status})，请重试！`)
+  }
+  // 获取响应头的content-type
+  const contentType = respose.headers.get('content-type')
+  const imageType = contentType?.split('/')?.pop() ?? 'png'
+  const buffer = await respose.arrayBuffer()
+  const fileName = `${groupId}_${Date.now()}.${imageType}`
+  const filePath = path.resolve(getFilePath('face', groupId), fileName)
+  fs.writeFileSync(filePath, Buffer.from(buffer))
+  return miaoBaseUrl + groupId + '/' + fileName
 }
 
 export const saveJson = (json: GroupExpression.MessageJson, groupId: string = 'global') => {
